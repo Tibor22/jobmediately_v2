@@ -1,56 +1,98 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import { signUpWithEmailAndPassword } from '../actions';
-import { useState, useTransition } from 'react';
-
+import { useEffect, useState, useTransition } from 'react';
+import InputField from '@/components/InputField';
+import { RoughNotation } from 'react-rough-notation';
+import Button from '@/components/Button';
+interface FormState {
+	password: string;
+	email: string;
+}
 export default function RegisterForm() {
-	let [isPending, startTransition] = useTransition();
-	const router = useRouter();
-	const [data, setData] = useState({
-		email: '',
+	const [formState, setFormState] = useState<FormState>({
 		password: '',
+		email: '',
+	});
+	const [errors, setErrors] = useState<FormState>({
+		password: '',
+		email: '',
 	});
 
-	function onSubmit(e: any, data: any) {
-		e.preventDefault();
-		console.log('DATA:', data);
-		startTransition(async () => {
-			const result = await signUpWithEmailAndPassword(data);
-			console.log('RESULT:', result);
-			const { error } = JSON.parse(result);
-			if (error?.message) {
-			} else {
+	const [errorMessage, setErrorMessage] = useState(null);
+
+	const validate = () => {
+		let tempErrors = { email: '', password: '' };
+
+		if (!formState.password) {
+			tempErrors.password = 'Password is required';
+		} else {
+			if (formState.password.length < 8) {
+				tempErrors.password = 'Password must be at least 8 characters';
 			}
+			if (!/\d/.test(formState.password)) {
+				tempErrors.password = 'Password must contain a number';
+			}
+		}
+		if (!formState.email) {
+			tempErrors.email = 'Email is required';
+		} else if (!/\S+@\S+\.\S+/.test(formState.email)) {
+			tempErrors.email = 'Email is not valid';
+		}
+
+		setErrors(tempErrors);
+		return Object.values(tempErrors).every((x) => x === '');
+	};
+
+	useEffect(() => {
+		if (Object.values(formState).every((x) => x === '')) return;
+		validate();
+	}, [formState]);
+
+	const handleChange = (
+		e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+	) => {
+		setFormState((formState) => {
+			return { ...formState, [e.target.name]: e.target.value };
 		});
+	};
+	async function onSubmit(e: any) {
+		e.preventDefault();
+
+		const result = await signUpWithEmailAndPassword(formState);
+		const { error } = JSON.parse(result);
+
+		if (error?.message) {
+			setErrorMessage(error.message);
+		}
 	}
 
-	console.log('data:', data);
-
 	return (
-		<form onSubmit={(e) => onSubmit(e, data)} className='w-full space-y-6'>
-			<input
-				placeholder='example@gmail.com'
-				type='email'
-				onChange={(e) => setData({ ...data, email: e.target.value })}
+		<form onSubmit={(e) => onSubmit(e)} className='space-y-6 m-auto w-[30rem]'>
+			<h1 className='text-3xl font-bold text-center mb-10'>
+				<RoughNotation type='underline' color='#1f344f' show={true}>
+					Register
+				</RoughNotation>
+			</h1>
+			<InputField
+				name='email'
+				value={formState.email}
+				handleChange={handleChange}
+				errors={errors} // Assuming you have a way to set and manage errors
+				label='Email address'
+				required
 			/>
-
-			<input
-				placeholder='password'
-				type='password'
-				// onChange={field.onChange}
-				onChange={(e) => setData({ ...data, password: e.target.value })}
+			<InputField
+				name='password'
+				value={formState.password}
+				handleChange={handleChange}
+				errors={errors} // Assuming you have a way to set and manage errors
+				label='Password'
+				required
 			/>
+			{errorMessage && <div className='text-red_light'>{errorMessage}</div>}
 
-			{/* <input
-				placeholder='Confirm Password'
-				type='password'
-				// onChange={field.onChange}
-			/> */}
-
-			<button type='submit' className='w-full flex gap-2'>
-				Register{' '}
-			</button>
+			<Button submitType={true}>Submit</Button>
 		</form>
 	);
 }
