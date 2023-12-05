@@ -9,5 +9,5 @@ export default async function RootLayout({
 	// if (!data.session) {
 	// 	return redirect('/');
 	// }
-	return <div></div>;
+	return <div>{children}</div>;
 }

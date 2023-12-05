@@ -8,21 +8,24 @@ import Button from '@/components/Button';
 interface FormState {
 	password: string;
 	email: string;
+	role: string;
 }
 export default function RegisterForm() {
 	const [formState, setFormState] = useState<FormState>({
 		password: '',
 		email: '',
+		role: 'employer',
 	});
 	const [errors, setErrors] = useState<FormState>({
 		password: '',
 		email: '',
+		role: '',
 	});
 
 	const [errorMessage, setErrorMessage] = useState(null);
 
 	const validate = () => {
-		let tempErrors = { email: '', password: '' };
+		let tempErrors = { email: '', password: '', role: '' };
 
 		if (!formState.password) {
 			tempErrors.password = 'Password is required';
@@ -38,6 +41,9 @@ export default function RegisterForm() {
 			tempErrors.email = 'Email is required';
 		} else if (!/\S+@\S+\.\S+/.test(formState.email)) {
 			tempErrors.email = 'Email is not valid';
+		}
+		if (!formState.role) {
+			tempErrors.role = 'Role is required';
 		}
 
 		setErrors(tempErrors);

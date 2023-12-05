@@ -1,6 +1,7 @@
 'use server';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { cookies } from 'next/headers';
+import { createClient } from '@supabase/supabase-js';
 
 export async function createSupabaseServerClientReadOnly() {
 	const cookieStore = cookies();
@@ -35,6 +36,19 @@ export async function createSupabaseServerClient() {
 				remove(name: string, options: CookieOptions) {
 					cookieStore.delete({ name, ...options });
 				},
+			},
+		}
+	);
+}
+
+export async function createSupabaseAdmin() {
+	return createClient(
+		process.env.NEXT_PUBLIC_SUPABASE_URL!,
+		process.env.SERVICE_ROLE!,
+		{
+			auth: {
+				autoRefreshToken: false,
+				persistSession: false,
 			},
 		}
 	);
