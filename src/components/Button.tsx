@@ -3,6 +3,7 @@ type Props = {
 	submitType?: boolean;
 	type?: string; // primary secondary etc.
 	children: React.ReactNode; // Added children prop
+	loading?: boolean;
 };
 
 function getButtonClassName(type: string | undefined): string {
@@ -20,14 +21,20 @@ function getButtonClassName(type: string | undefined): string {
 	}
 }
 
-export default function Button({ onClick, submitType, type, children }: Props) {
+export default function Button({
+	onClick,
+	submitType,
+	type,
+	children,
+	loading,
+}: Props) {
 	return (
 		<button
 			type={submitType ? 'submit' : 'button'}
 			className={getButtonClassName(type)}
 			onClick={onClick && onClick}
 		>
-			{children}
+			{loading ? 'loading...' : children}
 		</button>
 	);
 }

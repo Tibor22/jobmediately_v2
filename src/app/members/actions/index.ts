@@ -11,7 +11,7 @@ export async function createMember(data: {
 	email: string;
 	password: string;
 	name: string;
-	role: 'user' | 'admin';
+	role: 'employee' | 'admin' | 'employer' | 'partner';
 	status: 'active' | 'resigned';
 	confirm: string;
 }) {
@@ -59,6 +59,31 @@ export async function updateMemberBasicById(
 
 	const result = await supabase.from('member').update(data).eq('id', id);
 	revalidatePath('/dashboard/member');
+	return JSON.stringify(result);
+}
+export async function selectUserById() {
+	const { data: userSession } = await readUserSession();
+	// if (userSession.session?.user.user_metadata.role !== 'admin') {
+	// 	return JSON.stringify({
+	// 		error: { message: 'You are not allowed to do this!' },
+	// 	});
+	// }
+	console.log('USER SESSION:', userSession);
+
+	const supabase = await createSupabaseServerClient();
+
+	console.log(
+		userSession.session?.user.user_metadata.role,
+		userSession.session?.user.id
+	);
+
+	const result = await supabase
+		.from('employee')
+		.select()
+		.eq('auth_user_id', userSession.session?.user.id);
+
+	console.log('RESULT:', result);
+
 	return JSON.stringify(result);
 }
 

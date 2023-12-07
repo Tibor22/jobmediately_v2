@@ -8,13 +8,14 @@ import Button from '@/components/Button';
 interface FormState {
 	password: string;
 	email: string;
-	role: string;
+	role: 'employee' | 'admin' | 'employer' | 'partner' | '';
 }
 export default function RegisterForm() {
+	const [loading, setLoading] = useState(false);
 	const [formState, setFormState] = useState<FormState>({
 		password: '',
 		email: '',
-		role: 'employer',
+		role: '',
 	});
 	const [errors, setErrors] = useState<FormState>({
 		password: '',
@@ -46,7 +47,7 @@ export default function RegisterForm() {
 			tempErrors.role = 'Role is required';
 		}
 
-		setErrors(tempErrors);
+		setErrors(tempErrors as any);
 		return Object.values(tempErrors).every((x) => x === '');
 	};
 
@@ -64,13 +65,20 @@ export default function RegisterForm() {
 	};
 	async function onSubmit(e: any) {
 		e.preventDefault();
+		validate();
+		if (!validate()) return console.log('returned');
+		setLoading(true);
 
 		const result = await signUpWithEmailAndPassword(formState);
 		const { error } = JSON.parse(result);
 
 		if (error?.message) {
 			setErrorMessage(error.message);
+			setLoading(false);
+		} else {
+			setErrorMessage(null);
 		}
+		setLoading(false);
 	}
 
 	return (
@@ -96,9 +104,28 @@ export default function RegisterForm() {
 				label='Password'
 				required
 			/>
+
+			<select
+				name='role'
+				onChange={handleChange as any}
+				id='countries'
+				className={`block py-3 px-2 w-full text-base text-grey_dark bg-transparent border-2 appearance-none dark:text-white focus:outline-none focus:ring-0 peer focus:placeholder:text-white placeholder:pl-2 rounded-md ${
+					errors.role
+						? 'border-red_light focus:border-red_light'
+						: 'border-grey_light focus:border-green'
+				}`}
+			>
+				<option selected value={undefined}>
+					Please select
+				</option>
+				<option value='employer'>I am an Employer</option>
+				<option value='employee'>I am a Jobseeker</option>
+			</select>
 			{errorMessage && <div className='text-red_light'>{errorMessage}</div>}
 
-			<Button submitType={true}>Submit</Button>
+			<Button loading={loading} submitType={true}>
+				Submit
+			</Button>
 		</form>
 	);
 }
