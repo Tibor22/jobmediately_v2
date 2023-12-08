@@ -4,12 +4,13 @@ import {
 	createSupabaseAdmin,
 	createSupabaseServerClient,
 } from '@/app/lib/supabase/server';
-import { redirect } from 'next/navigation';
 
 export async function signUpWithEmailAndPassword(data: {
 	email: string;
 	password: string;
 	role: 'employee' | 'admin' | 'employer' | 'partner' | '';
+	firstName: string;
+	lastName: string;
 }) {
 	const supabase = await createSupabaseServerClient();
 	const result = await supabase.auth.signUp({
@@ -22,15 +23,13 @@ export async function signUpWithEmailAndPassword(data: {
 		},
 	});
 
-	console.log('RESULT on signup:', result);
 	const admin = await createSupabaseAdmin();
 	const memberCreated = await admin.from('employee').insert({
-		first_name: 'Tibor',
-		last_name: 'King',
+		first_name: data.firstName,
+		last_name: data.lastName,
+		email: data.email,
 		auth_user_id: result.data.user?.id,
 	});
-
-	// console.log('memberCreated:', memberCreated);
 
 	return JSON.stringify(memberCreated);
 }
@@ -42,15 +41,4 @@ export async function signInWithEmailAndPassword(data: {
 	const supabase = await createSupabaseServerClient();
 	const result = await supabase.auth.signInWithPassword(data);
 	return JSON.stringify(result);
-}
-
-export async function loginWithGithub() {
-	const supabase = await createSupabaseServerClient();
-
-	supabase.auth.signInWithOAuth({
-		provider: 'github',
-		options: {
-			redirectTo: `http://localhost:3000/auth-server/callback`,
-		},
-	});
 }

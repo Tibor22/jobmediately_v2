@@ -9,6 +9,8 @@ interface FormState {
 	password: string;
 	email: string;
 	role: 'employee' | 'admin' | 'employer' | 'partner' | '';
+	firstName: string;
+	lastName: string;
 }
 export default function RegisterForm() {
 	const [loading, setLoading] = useState(false);
@@ -16,17 +18,27 @@ export default function RegisterForm() {
 		password: '',
 		email: '',
 		role: '',
+		firstName: '',
+		lastName: '',
 	});
 	const [errors, setErrors] = useState<FormState>({
 		password: '',
 		email: '',
 		role: '',
+		firstName: '',
+		lastName: '',
 	});
 
 	const [errorMessage, setErrorMessage] = useState(null);
 
 	const validate = () => {
-		let tempErrors = { email: '', password: '', role: '' };
+		let tempErrors = {
+			email: '',
+			password: '',
+			role: '',
+			firstName: '',
+			lastName: '',
+		};
 
 		if (!formState.password) {
 			tempErrors.password = 'Password is required';
@@ -45,6 +57,12 @@ export default function RegisterForm() {
 		}
 		if (!formState.role) {
 			tempErrors.role = 'Role is required';
+		}
+		if (!formState.firstName) {
+			tempErrors.firstName = 'First Name is required';
+		}
+		if (!formState.lastName) {
+			tempErrors.lastName = 'Last Name is required';
 		}
 
 		setErrors(tempErrors as any);
@@ -88,6 +106,27 @@ export default function RegisterForm() {
 					Register
 				</RoughNotation>
 			</h1>
+			<div className='flex gap-4'>
+				<InputField
+					styles={{ marginBottom: '0rem' }}
+					name='firstName'
+					value={formState.firstName}
+					handleChange={handleChange}
+					errors={errors} // Assuming you have a way to set and manage errors
+					label='First Name'
+					required
+				/>
+
+				<InputField
+					styles={{ marginBottom: '0rem' }}
+					name='lastName'
+					value={formState.lastName}
+					handleChange={handleChange}
+					errors={errors} // Assuming you have a way to set and manage errors
+					label='Last Name'
+					required
+				/>
+			</div>
 			<InputField
 				name='email'
 				value={formState.email}
@@ -104,7 +143,6 @@ export default function RegisterForm() {
 				label='Password'
 				required
 			/>
-
 			<select
 				name='role'
 				onChange={handleChange as any}
@@ -122,7 +160,6 @@ export default function RegisterForm() {
 				<option value='employee'>I am a Jobseeker</option>
 			</select>
 			{errorMessage && <div className='text-red_light'>{errorMessage}</div>}
-
 			<Button loading={loading} submitType={true}>
 				Submit
 			</Button>

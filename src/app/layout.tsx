@@ -3,7 +3,6 @@ import { readUserSession } from './lib/actions';
 import './globals.css';
 import Link from 'next/link';
 import Image from 'next/image';
-// import { redirect } from 'next/navigation';
 
 export const metadata: Metadata = {
 	title: 'Jobmediately',
@@ -16,10 +15,7 @@ export default async function RootLayout({
 	children: React.ReactNode;
 }) {
 	const { data } = await readUserSession();
-	console.log('DATA', data);
-	// if (!data.session) {
-	// 	return redirect('/');
-	// }
+
 	return (
 		<html lang='en'>
 			<body>

@@ -32,17 +32,12 @@ export async function createMember(data: {
 			role: data.role,
 		},
 	});
-
 	// create member in different fields based on their role status
 	const memberCreated = await supabase.from('member').insert({
 		name: data.name,
 		id: userSession.session.user?.id,
 		email: data.email,
 	});
-	// 	const persmissionResult = await supabase.from('permission').insert({
-	// 		role: data.role,
-	// 		member_id: createResult.data.user?.id,
-	// 		status: data.status,
 
 	revalidatePath('/account/dashboard');
 
@@ -61,28 +56,14 @@ export async function updateMemberBasicById(
 	revalidatePath('/dashboard/member');
 	return JSON.stringify(result);
 }
-export async function selectUserById() {
+export async function getOwnAccount() {
 	const { data: userSession } = await readUserSession();
-	// if (userSession.session?.user.user_metadata.role !== 'admin') {
-	// 	return JSON.stringify({
-	// 		error: { message: 'You are not allowed to do this!' },
-	// 	});
-	// }
-	console.log('USER SESSION:', userSession);
-
 	const supabase = await createSupabaseServerClient();
 
-	console.log(
-		userSession.session?.user.user_metadata.role,
-		userSession.session?.user.id
-	);
-
 	const result = await supabase
-		.from('employee')
+		.from(userSession.session?.user.user_metadata.role)
 		.select()
 		.eq('auth_user_id', userSession.session?.user.id);
-
-	console.log('RESULT:', result);
 
 	return JSON.stringify(result);
 }
