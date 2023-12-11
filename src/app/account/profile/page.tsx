@@ -16,12 +16,21 @@ export default async function Profile() {
 	const data = await JSON.parse(userDetails);
 	console.log('userDetails:', data.data[0]);
 
+	// const objData = {
+	// 	first_name: data.data[0]?.first_name as string,
+	// 	last_name: data.data[0]?.last_name as string,
+	// };
 	const objData = {
-		firstName: data.data[0]?.first_name as string,
-		lastName: data.data[0]?.last_name as string,
+		...data.data[0],
+		date: {
+			endDate: data.data[0].DOB || null,
+			startDate: data.data[0].DOB || null,
+		},
 	};
 
 	console.log(objData);
 
-	return <EmployeeProfileForm data={objData} />;
+	return (
+		<EmployeeProfileForm data={objData} userId={data.data[0]?.id as string} />
+	);
 }

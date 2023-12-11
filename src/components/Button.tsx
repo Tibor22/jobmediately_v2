@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react';
+import { TiTick } from 'react-icons/ti';
 type Props = {
 	onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
 	submitType?: boolean;
@@ -21,6 +23,24 @@ function getButtonClassName(type: string | undefined): string {
 	}
 }
 
+// export default function Button({
+// 	onClick,
+// 	submitType,
+// 	type,
+// 	children,
+// 	loading,
+// }: Props) {
+// 	return (
+// 		<button
+// 			type={submitType ? 'submit' : 'button'}
+// 			className={getButtonClassName(type)}
+// 			onClick={onClick && onClick}
+// 		>
+// 			{loading ? 'loading...' : children}
+// 		</button>
+// 	);
+// }
+
 export default function Button({
 	onClick,
 	submitType,
@@ -28,13 +48,40 @@ export default function Button({
 	children,
 	loading,
 }: Props) {
+	const [isSaved, setIsSaved] = useState(false);
+
+	useEffect(() => {
+		if (!loading && isSaved) {
+			// Reset the isSaved state after a certain time, if needed
+			const timeout = setTimeout(() => setIsSaved(false), 2000);
+			return () => clearTimeout(timeout);
+		}
+	}, [loading, isSaved]);
+
+	const handleButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+		if (onClick) onClick(event);
+		if (!loading) setIsSaved(true);
+	};
+
+	const buttonText = loading ? (
+		'loading...'
+	) : isSaved ? (
+		<span className='flex justify-center items-center'>
+			Saved
+			<TiTick />
+		</span>
+	) : (
+		children
+	);
+
 	return (
 		<button
+			style={{ backgroundColor: isSaved ? 'green' : '' }}
 			type={submitType ? 'submit' : 'button'}
 			className={getButtonClassName(type)}
-			onClick={onClick && onClick}
+			onClick={handleButtonClick}
 		>
-			{loading ? 'loading...' : children}
+			{buttonText}
 		</button>
 	);
 }

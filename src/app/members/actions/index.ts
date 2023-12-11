@@ -6,6 +6,7 @@ import {
 	createSupabaseServerClient,
 } from '@/app/lib/supabase/server';
 import { revalidatePath, unstable_noStore } from 'next/cache';
+import { ProfileFormState } from '@/app/types/types';
 
 export async function createMember(data: {
 	email: string;
@@ -101,47 +102,21 @@ export async function updateMemberAdvanceById(
 	}
 }
 
-export async function updateMemberAcccountById(
-	user_id: string,
-	data: {
-		email: string;
-		password?: string | undefined;
-		confirm?: string | undefined;
-	}
+export async function updateUserProfile(
+	userId: string,
+	form: ProfileFormState
 ) {
-	const { data: userSession } = await readUserSession();
-	if (userSession.session?.user.user_metadata.role !== 'admin') {
-		return JSON.stringify({
-			error: { message: 'You are not allowed to do this!' },
-		});
-	}
-
-	let updateObject: {
-		email: string;
-		password?: string | undefined;
-	} = { email: data.email };
-
-	if (data.password) {
-		updateObject['password'] = data.password;
-	}
-
-	const supabaseAdmin = await createSupabaseAdmin();
-
-	const updateResult = await supabaseAdmin.auth.admin.updateUserById(
-		user_id,
-		updateObject
-	);
-
-	if (updateResult.error?.message) {
-		return JSON.stringify(updateResult);
-	} else {
+	try {
 		const supabase = await createSupabaseServerClient();
-		const result = await supabase
-			.from('member')
-			.update({ email: data.email })
-			.eq('id', user_id);
-		revalidatePath('/dashboard/member');
-		return JSON.stringify(result);
+
+		const updatedResult = await supabase
+			.from('employee')
+			.update(form)
+			.eq('id', userId);
+		revalidatePath('/account/dashboard');
+		return JSON.stringify(updatedResult);
+	} catch (e) {
+		console.log(e);
 	}
 }
 
