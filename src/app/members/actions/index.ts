@@ -107,6 +107,7 @@ export async function updateUserProfile(
 	form: ProfileFormState
 ) {
 	try {
+		console.log('INSIDE UPDATE USER PROFILE');
 		const supabase = await createSupabaseServerClient();
 
 		const updatedResult = await supabase

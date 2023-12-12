@@ -6,6 +6,7 @@ type Props = {
 	type?: string; // primary secondary etc.
 	children: React.ReactNode; // Added children prop
 	loading?: boolean;
+	forSave?: boolean;
 };
 
 function getButtonClassName(type: string | undefined): string {
@@ -47,6 +48,7 @@ export default function Button({
 	type,
 	children,
 	loading,
+	forSave,
 }: Props) {
 	const [isSaved, setIsSaved] = useState(false);
 
@@ -65,7 +67,7 @@ export default function Button({
 
 	const buttonText = loading ? (
 		'loading...'
-	) : isSaved ? (
+	) : isSaved && forSave ? (
 		<span className='flex justify-center items-center'>
 			Saved
 			<TiTick />
@@ -76,7 +78,7 @@ export default function Button({
 
 	return (
 		<button
-			style={{ backgroundColor: isSaved ? 'green' : '' }}
+			style={{ backgroundColor: isSaved && forSave ? 'green' : '' }}
 			type={submitType ? 'submit' : 'button'}
 			className={getButtonClassName(type)}
 			onClick={handleButtonClick}
