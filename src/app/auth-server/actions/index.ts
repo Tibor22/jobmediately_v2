@@ -24,14 +24,31 @@ export async function signUpWithEmailAndPassword(data: {
 	});
 
 	const admin = await createSupabaseAdmin();
-	const memberCreated = await admin.from('employee').insert({
-		first_name: data.firstName,
-		last_name: data.lastName,
-		email: data.email,
-		auth_user_id: result.data.user?.id,
-	});
+	const employeeInsertResult = await admin
+		.from('employee')
+		.insert({
+			first_name: data.firstName,
+			last_name: data.lastName,
+			email: data.email,
+			auth_user_id: result.data.user?.id,
+		})
+		.select('id');
 
-	return JSON.stringify(memberCreated);
+	if (employeeInsertResult.error) {
+		return JSON.stringify({ error: employeeInsertResult.error.message });
+	}
+	if (employeeInsertResult?.data) {
+		const ratingsResult = await createRatingsTable(
+			employeeInsertResult?.data[0]?.id
+		);
+		if (!ratingsResult.error) {
+			return JSON.stringify({ error: ratingsResult.error });
+		}
+		return JSON.stringify({
+			success: true,
+			employee: employeeInsertResult.data[0],
+		});
+	}
 }
 
 export async function signInWithEmailAndPassword(data: {
@@ -41,4 +58,17 @@ export async function signInWithEmailAndPassword(data: {
 	const supabase = await createSupabaseServerClient();
 	const result = await supabase.auth.signInWithPassword(data);
 	return JSON.stringify(result);
+}
+
+export async function createRatingsTable(employeeID: number) {
+	const admin = await createSupabaseAdmin();
+	const ratingsInsertResult = await admin.from('ratings').insert({
+		employee_id: employeeID,
+	});
+
+	if (ratingsInsertResult.error) {
+		return { error: ratingsInsertResult.error.message };
+	}
+
+	return ratingsInsertResult;
 }

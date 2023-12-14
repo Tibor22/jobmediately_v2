@@ -1,20 +1,12 @@
-import { getImageFromSupabaseBucket } from '@/app/bucket_actions';
-import { readUserSession } from '@/app/lib/actions';
 import { getOwnAccount } from '@/app/members/actions';
 import EmployeeProfileForm from '@/components/EmployeeProfileForm';
-import InputField from '@/components/InputField';
-import { useEffect, useState } from 'react';
-
-interface FormState {
-	firstName: string;
-	lastName: string;
-}
 
 export default async function Profile() {
-	const { data: userSession } = await readUserSession();
-
 	const userDetails = await getOwnAccount();
 	const data = await JSON.parse(userDetails);
+
+	const rating = data.data[0].ratings[0].avg_rating;
+	delete data.data[0].ratings;
 
 	const objData = {
 		...data.data[0],
@@ -25,6 +17,10 @@ export default async function Profile() {
 	};
 
 	return (
-		<EmployeeProfileForm data={objData} userId={data.data[0]?.id as string} />
+		<EmployeeProfileForm
+			rating={rating}
+			data={objData}
+			userId={data.data[0]?.id as string}
+		/>
 	);
 }

@@ -11,13 +11,16 @@ import { TbReplace } from 'react-icons/tb';
 
 import { uploadImageToSupabaseBucket } from '@/app/bucket_actions';
 import Image from 'next/image';
+import StarRating from './StartRating';
 
 declare type Props = {
 	data: ProfileFormState;
 	userSession?: Session | null;
 	userId: string;
+	rating: number;
 };
-export default function EmployeeProfileForm({ data, userId }: Props) {
+
+export default function EmployeeProfileForm({ data, userId, rating }: Props) {
 	const [loading, setLoading] = useState(false);
 	const [formState, setFormState] = useState<ProfileFormState>(data);
 	const [profileImg, setProfileImg] = useState<any>(null);
@@ -153,6 +156,7 @@ export default function EmployeeProfileForm({ data, userId }: Props) {
 									</div>
 								</>
 							)}
+							<StarRating rating={rating} />
 							<InputField
 								styles={{ marginBottom: '0rem' }}
 								name='first_name'
